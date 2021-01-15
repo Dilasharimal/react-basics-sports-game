@@ -1,41 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>React Sports Game</title>
-</head>
-<body>
-    <!-- include an element for ReactDOM to attach our React-generated elements to -->
+    <link rel="stylesheet" href="stylesheet.css" />
+  </head>
+  <body>
     <div id="root"></div>
 
-    <!-- include React and ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-    <!-- include Babel standalone so we can process JSX in React.createElement stuff -->
-    <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-
+    <script
+      crossorigin
+      src="https://unpkg.com/react@16/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/babel-standalone@6/babel.min.js"
+    ></script>
     <!-- include our JS+JSX for the React Appliccation -->
-<script type="text/babel">
 
-// An App component under which all other components will be added
-function App (props) {
-  return (
-    <div>
-      <h1>Welcome to the Sports Game starter!</h1>
-      <em>This file represents the way your code should look after completing the <strong>Setup</strong> steps in the instructions.</em>
-    </div>
-  )
-}
+    <script type="text/babel">
+      class Team extends React.Component {
+        constructor(props) {
+          super(props);
 
+          this.state = {
+            shots: 0,
+            goal: 0,
+          };
+          this.shotSound = new Audio("./Assets/Sounds/crowdcheer.mp3");
+          this.goalSound = new Audio("./Assets/Sounds/hitball.mp3");
+        }
+        shotHandler = () => {
+          let goal = this.state.goal;
+          this.shotSound.play();
+          this.goalSound.play();
+          if (Math.random() > 0.5) {
+            setTimeout(() => {
+              this.goalSound.play();
+            }, 5);
 
+            goal += 1;
+          }
+          this.setState((state, props) => ({
+            shots: state.shots + 1,
+            goal,
+          }));
+        };
+        render() {
+          let shortPercentageDiv;
 
-// Render the App
-ReactDOM.render(
-  <App />,
-  document.getElementById('root')
-)
-</script>
-</body>
+          if (this.state.shots) {
+            const shortPercentage = Math.round(
+              (this.state.goal / this.state.shots) * 100
+            );
+            shortPercentageDiv = (
+              <div>
+                <strong>Shooting %: {shortPercentage}</strong>
+              </div>
+            );
+          }
+          return (
+            <div className="Team">
+              <h2>{this.props.name}</h2>
+              <div className="identity">
+                <img src={this.props.logo} alt={this.props.name} />
+              </div>
+              <div>
+                <strong>Shots:</strong> {this.state.shots}
+              </div>
+              <div>
+                <strong>Goal:</strong> {this.state.goal}
+              </div>
+              {shortPercentageDiv}
+              <button onClick={this.shotHandler}>Shoot!</button>
+            </div>
+          );
+        }
+      }
+      function Game(props) {
+        return (
+          <div className="Game">
+            <h1>Welcome to {props.Venue}</h1>
+            <div className="stats">
+              <Team
+                name={props.visitingTeam.name}
+                logo={props.visitingTeam.logoSrc}
+              />
+
+              <div className="verses">
+                <h1>VS</h1>
+              </div>
+              <Team name={props.homeTeam.name} logo={props.homeTeam.logoSrc} />
+            </div>
+          </div>
+        );
+      }
+
+      function App(props) {
+        const arsenal = {
+          name: "Arsenal",
+          logoSrc: "./Assets/Images/arsenal.png",
+        };
+        const barcelona = {
+          name: "Barcelona",
+          logoSrc: "./Assets/Images/barcelona.jpg",
+        };
+        const chelsea = {
+          name: "Chelsea",
+          logoSrc: "./Assets/Images/chelsea.jpg",
+        };
+        const manchester = {
+          name: "Manchester",
+          logoSrc: "./Assets/Images/manchester.webp",
+        };
+        return (
+          <div className="App">
+            <Game
+              Venue="Camp Nou"
+              homeTeam={barcelona}
+              visitingTeam={arsenal}
+            />
+            <Game
+              Venue="Stamford Bridge"
+              homeTeam={chelsea}
+              visitingTeam={manchester}
+            />
+          </div>
+        );
+      }
+
+      // Render the App
+      ReactDOM.render(<App />, document.getElementById("root"));
+    </script>
+  </body>
 </html>
